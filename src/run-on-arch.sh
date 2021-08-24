@@ -5,8 +5,9 @@ set -euo pipefail
 # Args
 DOCKERFILE=$1
 CONTAINER_NAME=$2
+ARCH=$3
 # Remainder of args get passed to docker
-declare -a DOCKER_RUN_ARGS=${@:3:${#@}}
+declare -a DOCKER_RUN_ARGS=${@:4:${#@}}
 
 # Defaults
 ACTION_DIR="$(cd "$(dirname "$0")"/.. >/dev/null 2>&1 ; pwd -P)"
@@ -48,6 +49,7 @@ build_container () {
   if [[ -z "${GITHUB_TOKEN:-}" ]]
   then
     docker build \
+      --platform linux/${ARCH} \
       "${ACTION_DIR}/Dockerfiles" \
       --file "$DOCKERFILE" \
       --tag "${CONTAINER_NAME}:latest"
@@ -69,6 +71,7 @@ build_container () {
 
     docker pull "$PACKAGE_REGISTRY:latest" || true
     docker build \
+      --platform linux/${ARCH} \
       "${ACTION_DIR}/Dockerfiles" \
       --file "$DOCKERFILE" \
       --tag "${CONTAINER_NAME}:latest" \
